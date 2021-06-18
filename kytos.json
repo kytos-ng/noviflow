@@ -1,0 +1,11 @@
+{
+  "author": "Antonio Francisco",
+  "username": "amlight",
+  "name": "noviflow",
+  "description": "Implement Noviflow-specific features",
+  "version": "1.0",
+  "napp_dependencies": ["kytos/of_core"],
+  "license": "MIT",
+  "tags": [],
+  "url": "https://github.com/kytos-ng/amlight"
+}
