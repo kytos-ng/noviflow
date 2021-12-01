@@ -3,15 +3,16 @@
 Implement Noviflow-specific features
 """
 
-from kytos.core import KytosNApp
-
-from napps.kytos.of_core.v0x04.flow import Action
 from napps.amlight.noviflow.of_core.v0x04.action import (
-    NoviActionSetBfdData, NoviActionPushInt,
-    NoviActionAddIntMetadata, NoviActionPopInt,
-    NoviActionSendReport
+    NoviActionAddIntMetadata,
+    NoviActionPopInt,
+    NoviActionPushInt,
+    NoviActionSendReport,
+    NoviActionSetBfdData,
 )
+from napps.kytos.of_core.v0x04.flow import Action
 
+from kytos.core import KytosNApp
 
 NOVIFLOW_ACTIONS = {
     'set_bfd': NoviActionSetBfdData,
