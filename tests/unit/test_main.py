@@ -1,28 +1,34 @@
 """Test Main methods."""
 from unittest import TestCase
 from unittest.mock import patch
-from napps.kytos.of_core.v0x04.flow import Flow as Flow04
+
 from napps.amlight.noviflow.of_core.v0x04.action import (
-    NoviActionPushInt,
-    NoviActionSetBfdData,
     NoviActionAddIntMetadata,
     NoviActionPopInt,
+    NoviActionPushInt,
     NoviActionSendReport,
+    NoviActionSetBfdData,
 )
-
+from napps.amlight.noviflow.pyof.v0x04.action import (
+    NoviActionAddIntMetadata as OFNoviActionAddIntMetadata,
+)
+from napps.amlight.noviflow.pyof.v0x04.action import (
+    NoviActionPopInt as OFNoviActionPopInt,
+)
+from napps.amlight.noviflow.pyof.v0x04.action import (
+    NoviActionPushInt as OFNoviActionPushInt,
+)
+from napps.amlight.noviflow.pyof.v0x04.action import (
+    NoviActionSendReport as OFNoviActionSendReport,
+)
 from napps.amlight.noviflow.pyof.v0x04.action import (
     NoviActionSetBfdData as OFNoviActionSetBfdData,
-    NoviActionPushInt as OFNoviActionPushInt,
-    NoviActionAddIntMetadata as OFNoviActionAddIntMetadata,
-    NoviActionPopInt as OFNoviActionPopInt,
-    NoviActionSendReport as OFNoviActionSendReport,
-    NoviActionType,
 )
+from napps.amlight.noviflow.pyof.v0x04.action import NoviActionType
+from napps.kytos.of_core.v0x04.flow import Flow as Flow04
+from pyof.foundation.basic_types import UBInt8, UBInt32
 
-from kytos.lib.helpers import (
-    get_controller_mock,
-    get_switch_mock,
-)
+from kytos.lib.helpers import get_controller_mock, get_switch_mock
 
 
 class TestMain(TestCase):
@@ -206,11 +212,11 @@ class TestMain(TestCase):
     def test_noviaction_set_bfd_data(self):
         """Test NoviActionSetBfdData experimenter pack and unpack."""
 
-        port_no = 2
-        my_disc = 1
-        interval = 5
-        multiplier = 3
-        keep_alive_timeout = 15
+        port_no = UBInt32(2)
+        my_disc = UBInt32(1)
+        interval = UBInt32(5)
+        multiplier = UBInt8(3)
+        keep_alive_timeout = UBInt8(15)
 
         action = OFNoviActionSetBfdData(
             port_no=port_no,
