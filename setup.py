@@ -85,6 +85,30 @@ class TestCommand(Command):
             sys.exit(-1)
 
 
+class Test(TestCommand):
+    """Run all tests."""
+
+    description = "run tests and display results"
+
+    def get_args(self):
+        """Return args to be used in test command."""
+        markers = self.size
+        if markers == "small":
+            markers = "not medium and not large"
+        size_args = "" if self.size == "all" else "-m '%s'" % markers
+        return '--addopts="tests/%s %s"' % (self.type, size_args)
+
+    def run(self):
+        """Run tests."""
+        cmd = "python setup.py pytest %s" % self.get_args()
+        try:
+            check_call(cmd, shell=True)
+        except CalledProcessError as exc:
+            print(exc)
+            print("Unit tests failed. Fix the errors above and try again.")
+            sys.exit(-1)
+
+
 class Cleaner(SimpleCommand):
     """Custom clean command to tidy up the project root."""
 
@@ -97,14 +121,15 @@ class Cleaner(SimpleCommand):
         call('make -C docs/ clean', shell=True)
 
 
-class TestCoverage(SimpleCommand):
+class TestCoverage(Test):
     """Display test coverage."""
 
     description = 'run unit tests and display code coverage'
 
     def run(self):
         """Run unittest quietly and display coverage report."""
-        cmd = 'coverage3 run -m unittest && coverage3 report'
+        cmd = "coverage3 run setup.py pytest %s" % self.get_args()
+        cmd += "&& coverage3 report"
         call(cmd, shell=True)
 
 
@@ -174,30 +199,6 @@ class InstallMode(install):
         (napp_path.parent / '__init__.py').touch()
         KytosInstall.enable_core_napps()
         print('NApp installed.')
-
-
-class Test(TestCommand):
-    """Run all tests."""
-
-    description = "run tests and display results"
-
-    def get_args(self):
-        """Return args to be used in test command."""
-        markers = self.size
-        if markers == "small":
-            markers = "not medium and not large"
-        size_args = "" if self.size == "all" else "-m '%s'" % markers
-        return '--addopts="tests/%s %s"' % (self.type, size_args)
-
-    def run(self):
-        """Run tests."""
-        cmd = "python setup.py pytest %s" % self.get_args()
-        try:
-            check_call(cmd, shell=True)
-        except CalledProcessError as exc:
-            print(exc)
-            print("Unit tests failed. Fix the errors above and try again.")
-            sys.exit(-1)
 
 
 class DevelopMode(develop):
