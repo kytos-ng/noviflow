@@ -10,6 +10,15 @@ from napps.amlight.noviflow.of_core.v0x04.action import (
     NoviActionSendReport,
 )
 
+from napps.amlight.noviflow.pyof.v0x04.action import (
+    NoviActionSetBfdData as OFNoviActionSetBfdData,
+    NoviActionPushInt as OFNoviActionPushInt,
+    NoviActionAddIntMetadata as OFNoviActionAddIntMetadata,
+    NoviActionPopInt as OFNoviActionPopInt,
+    NoviActionSendReport as OFNoviActionSendReport,
+    NoviActionType,
+)
+
 from kytos.lib.helpers import (
     get_controller_mock,
     get_switch_mock,
@@ -149,3 +158,79 @@ class TestMain(TestCase):
         flow_1 = Flow04.from_dict(flow_dict_1, self.mock_switch)
         flow_2 = Flow04.from_dict(flow_dict_2, self.mock_switch)
         assert flow_1 != flow_2
+
+    def test_noviaction_experimenter_pack_unpack(self):
+        """Test NoviAction* experimenter pack and unpack."""
+
+        values = [
+            (
+                OFNoviActionPopInt,
+                NoviActionType.NOVI_ACTION_POP_INT,
+                b"\xff\xff\x00\x10\xff\x00\x00\x02\xff\x00\x00\x0e\x00\x00\x00\x00",
+            ),
+            (
+                OFNoviActionPushInt,
+                NoviActionType.NOVI_ACTION_PUSH_INT,
+                b"\xff\xff\x00\x10\xff\x00\x00\x02\xff\x00\x00\x0c\x00\x00\x00\x00",
+            ),
+            (
+                OFNoviActionAddIntMetadata,
+                NoviActionType.NOVI_ACTION_ADD_INT_METADATA,
+                b"\xff\xff\x00\x10\xff\x00\x00\x02\xff\x00\x00\x0d\x00\x00\x00\x00",
+            ),
+            (
+                OFNoviActionSendReport,
+                NoviActionType.NOVI_ACTION_SEND_REPORT,
+                b"\xff\xff\x00\x10\xff\x00\x00\x02\xff\x00\x00\x0f\x00\x00\x00\x00",
+            ),
+        ]
+
+        for action_class, action_type_val, expected_bytes in values:
+            with self.subTest(
+                action_class=action_class,
+                action_type_val=action_type_val,
+                expected_bytes=expected_bytes,
+            ):
+                action = action_class()
+                packed = action.pack()
+
+                assert packed == expected_bytes
+                raw = expected_bytes
+
+                unpacked = action_class()
+                unpacked.unpack(raw)
+                assert unpacked.customer.value == 0xFF
+                assert unpacked.reserved.value == 0
+                assert unpacked.novi_action_type.value == action_type_val.value
+
+    def test_noviaction_set_bfd_data(self):
+        """Test NoviActionSetBfdData experimenter pack and unpack."""
+
+        port_no = 2
+        my_disc = 1
+        interval = 5
+        multiplier = 3
+        keep_alive_timeout = 15
+
+        action = OFNoviActionSetBfdData(
+            port_no=port_no,
+            my_disc=my_disc,
+            interval=interval,
+            multiplier=multiplier,
+            keep_alive_timeout=keep_alive_timeout,
+        )
+        packed = action.pack()
+
+        unpacked = OFNoviActionSetBfdData()
+        unpacked.unpack(packed)
+        assert unpacked.customer.value == 0xFF
+        assert unpacked.reserved.value == 0
+        assert (
+            unpacked.novi_action_type.value
+            == NoviActionType.NOVI_ACTION_SET_BFD_DATA.value
+        )
+        assert unpacked.port_no == port_no
+        assert unpacked.my_disc == my_disc
+        assert unpacked.interval == interval
+        assert unpacked.multiplier == multiplier
+        assert unpacked.keep_alive_timeout == keep_alive_timeout
