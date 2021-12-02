@@ -56,7 +56,8 @@ class Main(KytosNApp):
         """
         pass
 
-    def register_actions(self):
+    @staticmethod
+    def register_actions():
         """Add new actions to kytos/of_core."""
         for name, action in NOVIFLOW_ACTIONS.items():
             Action.add_action_class(name, action)
