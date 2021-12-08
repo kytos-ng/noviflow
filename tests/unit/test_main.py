@@ -168,14 +168,6 @@ class TestMain(TestCase):
     def test_noviaction_experimenter_pack_unpack(self):
         """Test NoviAction* experimenter pack and unpack."""
 
-        pad = b"\x00\x00\x00\x00"
-        action_type = "\x00\x0e"
-        reserved = "\x00"
-        customer = "\xff"
-        experimenter = "\xff\x00\x00\x02"
-        length = "\x00\x10"
-        header_action_type = b"\xff\xff"
-
         values = [
             (
                 OFNoviActionPopInt,
@@ -245,30 +237,6 @@ class TestMain(TestCase):
         expected = b"\xff\xff\x00 \xff\x00\x00\x02\xff\x00\x00\x04\x00\x00\x00\x02\x00\x00\x00\x01\x00\x00\x00\x05\x03\x0f\x00\x00\x00\x00\x00\x00"
         assert packed == expected
         assert len(packed) == 32
-
-        # current expected bytes break down
-        _pad = b"\x00\x00\x00\x00\x00\x00"
-        _keep_alive_timeout = b"\x0f"
-        _multiplier = b"\x03"
-        _interval = b"\x00\x00\x00\x05"
-        _my_disc = b"\x00\x00\x00\x01"
-        _port_no = b"\x00\x00\x00\x02"
-        _action_type = b"\x00\x04"
-        _reserved = b"\x00"
-        _customer = b"\xff"
-        _experimenter = b"\xff\x00\x00\x02"
-        _length = b"\x00 "
-        _header_action_type = b"\xff\xff"
-
-        length = packed[2:4]
-        assert length == _length
-
-        expected_length = b"\x00\x20"
-        # trying to force the length as \x00\x20
-        expected_packed_fixed_length = b"\xff\xff\x00\x20\xff\x00\x00\x02\xff\x00\x00\x04\x00\x00\x00\x02\x00\x00\x00\x01\x00\x00\x00\x05\x03\x0f\x00\x00\x00\x00\x00\x00"
-        packed = expected_packed_fixed_length
-        assert packed[2:4] == expected_length
-        assert packed == expected_packed_fixed_length
 
         unpacked = OFNoviActionSetBfdData()
         unpacked.unpack(packed)
