@@ -205,18 +205,18 @@ class TestMain(TestCase):
 
                 unpacked = action_class()
                 unpacked.unpack(raw)
-                assert unpacked.customer.value == 0xFF
-                assert unpacked.reserved.value == 0
+                assert unpacked.customer == 0xFF
+                assert unpacked.reserved == 0
                 assert unpacked.novi_action_type.value == action_type_val.value
 
     def test_noviaction_set_bfd_data(self):
         """Test NoviActionSetBfdData experimenter pack and unpack."""
 
-        port_no = UBInt32(2)
-        my_disc = UBInt32(1)
-        interval = UBInt32(5)
-        multiplier = UBInt8(3)
-        keep_alive_timeout = UBInt8(15)
+        port_no = 2
+        my_disc = 1
+        interval = 5
+        multiplier = 3
+        keep_alive_timeout = 15
 
         action = OFNoviActionSetBfdData(
             port_no=port_no,
@@ -225,12 +225,22 @@ class TestMain(TestCase):
             multiplier=multiplier,
             keep_alive_timeout=keep_alive_timeout,
         )
+        assert action.customer == 0xFF
+        assert action.reserved == 0
+        assert action.port_no == 2
+        assert action.my_disc == 1
+        assert action.interval == 5
+        assert action.multiplier == 3
+        assert action.keep_alive_timeout == 15
+
         packed = action.pack()
+        expected = b'\xff\xff\x00 \xff\x00\x00\x02\xff\x00\x00\x04\x00\x00\x00\x02\x00\x00\x00\x01\x00\x00\x00\x05\x03\x0f\x00\x00\x00\x00\x00\x00'
+        assert packed == expected
 
         unpacked = OFNoviActionSetBfdData()
         unpacked.unpack(packed)
-        assert unpacked.customer.value == 0xFF
-        assert unpacked.reserved.value == 0
+        assert unpacked.customer == 0xFF
+        assert unpacked.reserved == 0
         assert (
             unpacked.novi_action_type.value
             == NoviActionType.NOVI_ACTION_SET_BFD_DATA.value
