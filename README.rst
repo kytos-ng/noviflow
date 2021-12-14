@@ -1,3 +1,5 @@
+|Build| |Coverage| |Quality| |Tag| |License|
+
 Overview
 ========
 Implement Noviflow-specific features
@@ -31,3 +33,18 @@ The following `OFPAT_EXPERIMENTER` custom action types are supported:
 
         # Send INT report
         NOVI_ACTION_SEND_REPORT = 15
+
+.. TAGs
+
+.. |Build| image:: https://scrutinizer-ci.com/g/kytos-ng/noviflow/badges/build.png?b=master
+  :alt: Build status
+.. |Coverage| image:: https://scrutinizer-ci.com/g/kytos-ng/noviflow/badges/coverage.png?b=master
+  :alt: Code coverage
+  :target: https://scrutinizer-ci.com/g/kytos-ng/noviflow/?branch=master
+.. |Quality| image:: https://scrutinizer-ci.com/g/kytos-ng/noviflow/badges/quality-score.png?b=master
+  :alt: Code-quality score
+  :target: https://scrutinizer-ci.com/g/kytos-ng/noviflow/?branch=master
+.. |Tag| image:: https://img.shields.io/github/tag/kytos-ng/noviflow.svg
+   :target: https://github.com/kytos-ng/noviflow/tags
+.. |License| image:: https://img.shields.io/github/license/kytos-ng/noviflow.svg
+   :target: https://github.com/kytos-ng/noviflow/blob/master/LICENSE
