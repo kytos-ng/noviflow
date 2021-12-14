@@ -12,7 +12,7 @@ This NApps depends on `kytos/of_core` and OpenFlow 1.3.
 Supported Features
 ==================
 
-The following `OFPAT_EXPERIMENTER` custom action types are supported:
+The following ``OFPAT_EXPERIMENTER`` custom action types are supported:
 
   .. code-block:: python
 
