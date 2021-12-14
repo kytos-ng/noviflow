@@ -173,29 +173,34 @@ class TestMain(TestCase):
                 OFNoviActionPopInt,
                 NoviActionType.NOVI_ACTION_POP_INT,
                 b"\xff\xff\x00\x10\xff\x00\x00\x02\xff\x00\x00\x0e\x00\x00\x00\x00",
+                NoviActionPopInt,
             ),
             (
                 OFNoviActionPushInt,
                 NoviActionType.NOVI_ACTION_PUSH_INT,
                 b"\xff\xff\x00\x10\xff\x00\x00\x02\xff\x00\x00\x0c\x00\x00\x00\x00",
+                NoviActionPushInt,
             ),
             (
                 OFNoviActionAddIntMetadata,
                 NoviActionType.NOVI_ACTION_ADD_INT_METADATA,
                 b"\xff\xff\x00\x10\xff\x00\x00\x02\xff\x00\x00\x0d\x00\x00\x00\x00",
+                NoviActionAddIntMetadata,
             ),
             (
                 OFNoviActionSendReport,
                 NoviActionType.NOVI_ACTION_SEND_REPORT,
                 b"\xff\xff\x00\x10\xff\x00\x00\x02\xff\x00\x00\x0f\x00\x00\x00\x00",
+                NoviActionSendReport,
             ),
         ]
 
-        for action_class, action_type_val, expected_bytes in values:
+        for action_class, action_type_val, expected_bytes, novi_class in values:
             with self.subTest(
                 action_class=action_class,
                 action_type_val=action_type_val,
                 expected_bytes=expected_bytes,
+                novi_class=novi_class,
             ):
                 action = action_class()
                 packed = action.pack()
@@ -209,14 +214,21 @@ class TestMain(TestCase):
                 assert unpacked.reserved == 0
                 assert unpacked.novi_action_type.value == action_type_val.value
 
+                assert isinstance(novi_class.from_of_action(action), novi_class)
+                as_of_action = novi_class().as_of_action()
+                assert isinstance(as_of_action, action_class)
+                assert as_of_action.customer == 0xFF
+                assert as_of_action.reserved == 0
+                assert as_of_action.novi_action_type.value == action_type_val.value
+
     def test_noviaction_set_bfd_data(self):
         """Test NoviActionSetBfdData experimenter pack and unpack."""
 
-        port_no = 2
-        my_disc = 1
-        interval = 5
-        multiplier = 3
-        keep_alive_timeout = 15
+        port_no = UBInt32(2)
+        my_disc = UBInt32(1)
+        interval = UBInt32(5)
+        multiplier = UBInt8(3)
+        keep_alive_timeout = UBInt8(15)
 
         action = OFNoviActionSetBfdData(
             port_no=port_no,
@@ -251,3 +263,26 @@ class TestMain(TestCase):
         assert unpacked.interval == interval
         assert unpacked.multiplier == multiplier
         assert unpacked.keep_alive_timeout == keep_alive_timeout
+
+        novi_class = NoviActionSetBfdData(
+            port_no=port_no,
+            my_disc=my_disc,
+            interval=interval,
+            multiplier=multiplier,
+            keep_alive_timeout=keep_alive_timeout,
+        )
+        assert isinstance(novi_class.from_of_action(action), NoviActionSetBfdData)
+        as_of_action = novi_class.as_of_action()
+        assert isinstance(as_of_action, OFNoviActionSetBfdData)
+        assert as_of_action.customer == 0xFF
+        assert as_of_action.reserved == 0
+        assert (
+            as_of_action.novi_action_type.value
+            == NoviActionType.NOVI_ACTION_SET_BFD_DATA.value
+        )
+        assert as_of_action.port_no == port_no
+        assert as_of_action.my_disc == my_disc
+        assert as_of_action.interval == interval
+        assert as_of_action.multiplier == multiplier
+        assert as_of_action.keep_alive_timeout == keep_alive_timeout
+
