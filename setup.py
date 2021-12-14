@@ -68,7 +68,7 @@ class TestCommand(Command):
 
     def get_args(self):
         """Return args to be used in test command."""
-        return "--size %s --type %s" % (self.size, self.type)
+        return f"--size {self.size} --type {self.type}"
 
     def initialize_options(self):
         """Set default size and type args."""
@@ -95,12 +95,12 @@ class Test(TestCommand):
         markers = self.size
         if markers == "small":
             markers = "not medium and not large"
-        size_args = "" if self.size == "all" else "-m '%s'" % markers
-        return '--addopts="tests/%s %s"' % (self.type, size_args)
+        size_args = "" if self.size == "all" else f"-m '{markers}'"
+        return f'--addopts="tests/{self.type} {size_args}"'
 
     def run(self):
         """Run tests."""
-        cmd = "python setup.py pytest %s" % self.get_args()
+        cmd = f"python setup.py pytest {self.get_args()}"
         try:
             check_call(cmd, shell=True)
         except CalledProcessError as exc:
@@ -128,7 +128,7 @@ class TestCoverage(Test):
 
     def run(self):
         """Run unittest quietly and display coverage report."""
-        cmd = "coverage3 run setup.py pytest %s" % self.get_args()
+        cmd = f"coverage3 run setup.py pytest {self.get_args}"
         cmd += "&& coverage3 report"
         call(cmd, shell=True)
 
@@ -181,7 +181,7 @@ class InstallMode(install):
         super().run() does not install dependencies when running
         ``python setup.py install`` (pypa/setuptools#456).
         """
-        print(f'Installing NApp amlight/noviflow...')
+        print('Installing NApp amlight/noviflow...')
         install_path = Path(INSTALLED_PATH)
 
         if not install_path.exists():
