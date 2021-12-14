@@ -15,11 +15,11 @@ from napps.kytos.of_core.v0x04.flow import Action
 from kytos.core import KytosNApp
 
 NOVIFLOW_ACTIONS = {
-    'set_bfd': NoviActionSetBfdData,
-    'push_int': NoviActionPushInt,
-    'add_int_metadata': NoviActionAddIntMetadata,
-    'pop_int': NoviActionPopInt,
-    'send_report': NoviActionSendReport
+    "set_bfd": NoviActionSetBfdData,
+    "push_int": NoviActionPushInt,
+    "add_int_metadata": NoviActionAddIntMetadata,
+    "pop_int": NoviActionPopInt,
+    "send_report": NoviActionSendReport,
 }
 
 
