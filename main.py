@@ -3,16 +3,16 @@
 Implement Noviflow-specific features
 """
 
-from kytos.core import KytosNApp, log
-
-from napps.kytos.of_core.v0x04.flow import Action
-from napps.amlight.noviflow import settings
 from napps.amlight.noviflow.of_core.v0x04.action import (
-    NoviActionSetBfdData, NoviActionPushInt,
-    NoviActionAddIntMetadata, NoviActionPopInt,
-    NoviActionSendReport
+    NoviActionAddIntMetadata,
+    NoviActionPopInt,
+    NoviActionPushInt,
+    NoviActionSendReport,
+    NoviActionSetBfdData,
 )
+from napps.kytos.of_core.v0x04.flow import Action
 
+from kytos.core import KytosNApp
 
 NOVIFLOW_ACTIONS = {
     'set_bfd': NoviActionSetBfdData,
@@ -56,7 +56,8 @@ class Main(KytosNApp):
         """
         pass
 
-    def register_actions(self):
+    @staticmethod
+    def register_actions():
         """Add new actions to kytos/of_core."""
         for name, action in NOVIFLOW_ACTIONS.items():
             Action.add_action_class(name, action)

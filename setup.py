@@ -8,7 +8,7 @@ import shutil
 import sys
 from abc import abstractmethod
 from pathlib import Path
-from subprocess import call, check_call
+from subprocess import CalledProcessError, call, check_call
 
 from setuptools import Command, setup
 from setuptools.command.develop import develop
@@ -54,6 +54,61 @@ class SimpleCommand(Command):
         """Post-process options."""
 
 
+# pylint: disable=attribute-defined-outside-init, abstract-method
+class TestCommand(Command):
+    """Test tags decorators."""
+
+    user_options = [
+        ("size=", None, "Specify the size of tests to be executed."),
+        ("type=", None, "Specify the type of tests to be executed."),
+    ]
+
+    sizes = ("small", "medium", "large", "all")
+    types = ("unit", "integration", "e2e")
+
+    def get_args(self):
+        """Return args to be used in test command."""
+        return f"--size {self.size} --type {self.type}"
+
+    def initialize_options(self):
+        """Set default size and type args."""
+        self.size = "all"
+        self.type = "unit"
+
+    def finalize_options(self):
+        """Post-process."""
+        try:
+            assert self.size in self.sizes, "ERROR: Invalid size:" f":{self.size}"
+            assert self.type in self.types, "ERROR: Invalid type:" f":{self.type}"
+        except AssertionError as exc:
+            print(exc)
+            sys.exit(-1)
+
+
+class Test(TestCommand):
+    """Run all tests."""
+
+    description = "run tests and display results"
+
+    def get_args(self):
+        """Return args to be used in test command."""
+        markers = self.size
+        if markers == "small":
+            markers = "not medium and not large"
+        size_args = "" if self.size == "all" else f"-m '{markers}'"
+        return f'--addopts="tests/{self.type} {size_args}"'
+
+    def run(self):
+        """Run tests."""
+        cmd = f"python setup.py pytest {self.get_args()}"
+        try:
+            check_call(cmd, shell=True)
+        except CalledProcessError as exc:
+            print(exc)
+            print("Unit tests failed. Fix the errors above and try again.")
+            sys.exit(-1)
+
+
 class Cleaner(SimpleCommand):
     """Custom clean command to tidy up the project root."""
 
@@ -66,14 +121,15 @@ class Cleaner(SimpleCommand):
         call('make -C docs/ clean', shell=True)
 
 
-class TestCoverage(SimpleCommand):
+class TestCoverage(Test):
     """Display test coverage."""
 
     description = 'run unit tests and display code coverage'
 
     def run(self):
         """Run unittest quietly and display coverage report."""
-        cmd = 'coverage3 run -m unittest && coverage3 report'
+        cmd = f"coverage3 run setup.py pytest {self.get_args}"
+        cmd += "&& coverage3 report"
         call(cmd, shell=True)
 
 
@@ -125,7 +181,7 @@ class InstallMode(install):
         super().run() does not install dependencies when running
         ``python setup.py install`` (pypa/setuptools#456).
         """
-        print(f'Installing NApp amlight/noviflow...')
+        print('Installing NApp amlight/noviflow...')
         install_path = Path(INSTALLED_PATH)
 
         if not install_path.exists():
@@ -205,11 +261,13 @@ def symlink_if_different(path, target):
 setup(name=f'kytos_{NAPP_NAME}',
       version=NAPP_VERSION,
       description='Core NApps developed by the Kytos Team',
-      url=f'http://github.com/kytos/{NAPP_NAME}',
+      url=f'http://github.com/kytos-ng/{NAPP_NAME}',
       author='Kytos Team',
       author_email='of-ng-dev@ncc.unesp.br',
       license='MIT',
       install_requires=['setuptools >= 36.0.1'],
+      setup_requires=["pytest-runner"],
+      tests_require=["pytest"],
       extras_require={
           'dev': [
               'coverage',
@@ -225,6 +283,7 @@ setup(name=f'kytos_{NAPP_NAME}',
           'develop': DevelopMode,
           'install': InstallMode,
           'lint': Linter,
+          "test": Test,
       },
       zip_safe=False,
       classifiers=[

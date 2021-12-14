@@ -75,10 +75,10 @@ class NoviActionAddIntMetadata(ActionBase):
 
 
 class NoviActionPopInt(ActionBase):
-    """Action to push INT."""
+    """Action to pop INT."""
 
     def __init__(self, *args):
-        self.action_type = 'push_int'
+        self.action_type = 'pop_int'
 
     @classmethod
     def from_of_action(cls, of_action):
@@ -94,7 +94,7 @@ class NoviActionSendReport(ActionBase):
     """Action to send INT report."""
 
     def __init__(self, *args):
-        self.action_type = 'push_int'
+        self.action_type = 'send_report'
 
     @classmethod
     def from_of_action(cls, of_action):
