@@ -128,7 +128,7 @@ class TestCoverage(Test):
 
     def run(self):
         """Run unittest quietly and display coverage report."""
-        cmd = f"coverage3 run setup.py pytest {self.get_args}"
+        cmd = f"coverage3 run setup.py pytest {self.get_args()}"
         cmd += "&& coverage3 report"
         call(cmd, shell=True)
 
