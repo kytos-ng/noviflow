@@ -1,5 +1,6 @@
 """Test Main methods."""
 from unittest import TestCase
+from unittest.mock import MagicMock
 from unittest.mock import patch
 
 from napps.amlight.noviflow.of_core.v0x04.action import (
@@ -45,6 +46,13 @@ class TestMain(TestCase):
         self.napp = Main(controller)
         self.napp.register_actions()
         self.mock_switch = get_switch_mock("00:00:00:00:00:00:00:01", 0x04)
+
+    def test_execute_register_actions(self) -> None:
+        """Test register_actions is executed."""
+        mock = MagicMock()
+        self.napp.register_actions = mock()
+        self.napp.execute()
+        assert mock.call_count == 1
 
     def test_create_noviactions(self):
         """Test creating NoviAction classes from a Flow04."""
