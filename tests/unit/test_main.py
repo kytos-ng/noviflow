@@ -1,5 +1,6 @@
 """Test Main methods."""
 from unittest import TestCase
+from unittest.mock import MagicMock
 from unittest.mock import patch
 
 from napps.amlight.noviflow.of_core.v0x04.action import (
@@ -26,7 +27,6 @@ from napps.amlight.noviflow.pyof.v0x04.action import (
 )
 from napps.amlight.noviflow.pyof.v0x04.action import NoviActionType
 from napps.kytos.of_core.v0x04.flow import Flow as Flow04
-from pyof.foundation.basic_types import UBInt8, UBInt32
 
 from kytos.lib.helpers import get_controller_mock, get_switch_mock
 
@@ -45,6 +45,13 @@ class TestMain(TestCase):
         self.napp = Main(controller)
         self.napp.register_actions()
         self.mock_switch = get_switch_mock("00:00:00:00:00:00:00:01", 0x04)
+
+    def test_execute_register_actions(self) -> None:
+        """Test register_actions is executed."""
+        mock = MagicMock()
+        self.napp.register_actions = mock()
+        self.napp.execute()
+        assert mock.call_count == 1
 
     def test_create_noviactions(self):
         """Test creating NoviAction classes from a Flow04."""
@@ -173,29 +180,34 @@ class TestMain(TestCase):
                 OFNoviActionPopInt,
                 NoviActionType.NOVI_ACTION_POP_INT,
                 b"\xff\xff\x00\x10\xff\x00\x00\x02\xff\x00\x00\x0e\x00\x00\x00\x00",
+                NoviActionPopInt,
             ),
             (
                 OFNoviActionPushInt,
                 NoviActionType.NOVI_ACTION_PUSH_INT,
                 b"\xff\xff\x00\x10\xff\x00\x00\x02\xff\x00\x00\x0c\x00\x00\x00\x00",
+                NoviActionPushInt,
             ),
             (
                 OFNoviActionAddIntMetadata,
                 NoviActionType.NOVI_ACTION_ADD_INT_METADATA,
                 b"\xff\xff\x00\x10\xff\x00\x00\x02\xff\x00\x00\x0d\x00\x00\x00\x00",
+                NoviActionAddIntMetadata,
             ),
             (
                 OFNoviActionSendReport,
                 NoviActionType.NOVI_ACTION_SEND_REPORT,
                 b"\xff\xff\x00\x10\xff\x00\x00\x02\xff\x00\x00\x0f\x00\x00\x00\x00",
+                NoviActionSendReport,
             ),
         ]
 
-        for action_class, action_type_val, expected_bytes in values:
+        for action_class, action_type_val, expected_bytes, novi_class in values:
             with self.subTest(
                 action_class=action_class,
                 action_type_val=action_type_val,
                 expected_bytes=expected_bytes,
+                novi_class=novi_class,
             ):
                 action = action_class()
                 packed = action.pack()
@@ -208,6 +220,13 @@ class TestMain(TestCase):
                 assert unpacked.customer == 0xFF
                 assert unpacked.reserved == 0
                 assert unpacked.novi_action_type.value == action_type_val.value
+
+                assert isinstance(novi_class.from_of_action(action), novi_class)
+                as_of_action = novi_class().as_of_action()
+                assert isinstance(as_of_action, action_class)
+                assert as_of_action.customer == 0xFF
+                assert as_of_action.reserved == 0
+                assert as_of_action.novi_action_type.value == action_type_val.value
 
     def test_noviaction_set_bfd_data(self):
         """Test NoviActionSetBfdData experimenter pack and unpack."""
@@ -251,3 +270,26 @@ class TestMain(TestCase):
         assert unpacked.interval == interval
         assert unpacked.multiplier == multiplier
         assert unpacked.keep_alive_timeout == keep_alive_timeout
+
+        novi_class = NoviActionSetBfdData(
+            port_no=port_no,
+            my_disc=my_disc,
+            interval=interval,
+            multiplier=multiplier,
+            keep_alive_timeout=keep_alive_timeout,
+        )
+        assert isinstance(novi_class.from_of_action(action), NoviActionSetBfdData)
+        as_of_action = novi_class.as_of_action()
+        assert isinstance(as_of_action, OFNoviActionSetBfdData)
+        assert as_of_action.customer == 0xFF
+        assert as_of_action.reserved == 0
+        assert (
+            as_of_action.novi_action_type.value
+            == NoviActionType.NOVI_ACTION_SET_BFD_DATA.value
+        )
+        assert as_of_action.port_no == port_no
+        assert as_of_action.my_disc == my_disc
+        assert as_of_action.interval == interval
+        assert as_of_action.multiplier == multiplier
+        assert as_of_action.keep_alive_timeout == keep_alive_timeout
+

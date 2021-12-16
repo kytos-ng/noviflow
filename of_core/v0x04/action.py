@@ -25,11 +25,11 @@ class NoviActionSetBfdData(ActionBase):
     @classmethod
     def from_of_action(cls, of_action):
         """Return a high-level NoviActionSetBfdData instance from pyof."""
-        return cls(port_no=of_action.port_no.value,
-                   my_disc=of_action.my_disc.value,
-                   interval=of_action.interval.value,
-                   multiplier=of_action.multiplier.value,
-                   keep_alive_timeout=of_action.keep_alive_timeout.value)
+        return cls(port_no=int(of_action.port_no),
+                   my_disc=int(of_action.my_disc),
+                   interval=int(of_action.interval),
+                   multiplier=int(of_action.multiplier),
+                   keep_alive_timeout=int(of_action.keep_alive_timeout))
 
     def as_of_action(self):
         """Return a pyof NoviActionSetBfdData instance."""
