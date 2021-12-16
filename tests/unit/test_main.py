@@ -232,11 +232,11 @@ class TestMain(TestCase):
     def test_noviaction_set_bfd_data(self):
         """Test NoviActionSetBfdData experimenter pack and unpack."""
 
-        port_no = UBInt32(2)
-        my_disc = UBInt32(1)
-        interval = UBInt32(5)
-        multiplier = UBInt8(3)
-        keep_alive_timeout = UBInt8(15)
+        port_no = 2
+        my_disc = 1
+        interval = 5
+        multiplier = 3
+        keep_alive_timeout = 15
 
         action = OFNoviActionSetBfdData(
             port_no=port_no,
