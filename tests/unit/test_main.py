@@ -1,7 +1,6 @@
 """Test Main methods."""
 from unittest import TestCase
-from unittest.mock import MagicMock
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 from napps.amlight.noviflow.of_core.v0x04.action import (
     NoviActionAddIntMetadata,
@@ -27,6 +26,7 @@ from napps.amlight.noviflow.pyof.v0x04.action import (
 )
 from napps.amlight.noviflow.pyof.v0x04.action import NoviActionType
 from napps.kytos.of_core.v0x04.flow import Flow as Flow04
+from pyof.foundation.basic_types import UBInt8, UBInt32
 
 from kytos.lib.helpers import get_controller_mock, get_switch_mock
 
@@ -231,11 +231,11 @@ class TestMain(TestCase):
     def test_noviaction_set_bfd_data(self):
         """Test NoviActionSetBfdData experimenter pack and unpack."""
 
-        port_no = 2
-        my_disc = 1
-        interval = 5
-        multiplier = 3
-        keep_alive_timeout = 15
+        port_no = UBInt32(2)
+        my_disc = UBInt32(1)
+        interval = UBInt32(5)
+        multiplier = UBInt8(3)
+        keep_alive_timeout = UBInt8(15)
 
         action = OFNoviActionSetBfdData(
             port_no=port_no,
@@ -292,4 +292,3 @@ class TestMain(TestCase):
         assert as_of_action.interval == interval
         assert as_of_action.multiplier == multiplier
         assert as_of_action.keep_alive_timeout == keep_alive_timeout
-
