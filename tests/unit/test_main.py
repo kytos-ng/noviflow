@@ -27,6 +27,7 @@ from napps.amlight.noviflow.pyof.v0x04.action import (
 )
 from napps.amlight.noviflow.pyof.v0x04.action import NoviActionType
 from napps.kytos.of_core.v0x04.flow import Flow as Flow04
+from pyof.foundation.basic_types import UBInt8, UBInt32
 
 from kytos.lib.helpers import get_controller_mock, get_switch_mock
 
@@ -292,4 +293,3 @@ class TestMain(TestCase):
         assert as_of_action.interval == interval
         assert as_of_action.multiplier == multiplier
         assert as_of_action.keep_alive_timeout == keep_alive_timeout
-
