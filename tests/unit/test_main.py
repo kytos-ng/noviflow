@@ -1,7 +1,6 @@
 """Test Main methods."""
 from unittest import TestCase
-from unittest.mock import MagicMock
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 from napps.amlight.noviflow.of_core.v0x04.action import (
     NoviActionAddIntMetadata,
