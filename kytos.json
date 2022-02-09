@@ -3,9 +3,9 @@
   "username": "amlight",
   "name": "noviflow",
   "description": "Implement Noviflow-specific features",
-  "version": "1.0",
+  "version": "2022.1.0",
   "napp_dependencies": ["kytos/of_core"],
   "license": "MIT",
   "tags": [],
-  "url": "https://github.com/kytos-ng/amlight"
+  "url": "https://github.com/kytos-ng/noviflow"
 }
