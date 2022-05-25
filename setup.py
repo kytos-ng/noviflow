@@ -266,6 +266,7 @@ setup(
     install_requires=["setuptools >= 36.0.1"],
     setup_requires=["pytest-runner"],
     tests_require=["pytest==7.0.0"],
+    packages=[],
     extras_require={
         "dev": [
             "coverage",
