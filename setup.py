@@ -59,30 +59,22 @@ class TestCommand(Command):
     """Test tags decorators."""
 
     user_options = [
-        ("size=", None, "Specify the size of tests to be executed."),
-        ("type=", None, "Specify the type of tests to be executed."),
+        ("k=", None, "Specify a pytest -k expression."),
     ]
-
-    sizes = ("small", "medium", "large", "all")
-    types = ("unit", "integration", "e2e")
 
     def get_args(self):
         """Return args to be used in test command."""
-        return f"--size {self.size} --type {self.type}"
+        if self.k:
+            return f"-k '{self.k}'"
+        return ""
 
     def initialize_options(self):
         """Set default size and type args."""
-        self.size = "all"
-        self.type = "unit"
+        self.k = ""
 
     def finalize_options(self):
         """Post-process."""
-        try:
-            assert self.size in self.sizes, "ERROR: Invalid size:" f":{self.size}"
-            assert self.type in self.types, "ERROR: Invalid type:" f":{self.type}"
-        except AssertionError as exc:
-            print(exc)
-            sys.exit(-1)
+        pass
 
 
 class Test(TestCommand):
@@ -90,17 +82,9 @@ class Test(TestCommand):
 
     description = "run tests and display results"
 
-    def get_args(self):
-        """Return args to be used in test command."""
-        markers = self.size
-        if markers == "small":
-            markers = "not medium and not large"
-        size_args = "" if self.size == "all" else f"-m '{markers}'"
-        return f'--addopts="tests/{self.type} {size_args}"'
-
     def run(self):
         """Run tests."""
-        cmd = f"python setup.py pytest {self.get_args()}"
+        cmd = f"python3 -m pytest tests/ {self.get_args()}"
         try:
             check_call(cmd, shell=True)
         except CalledProcessError as exc:
@@ -128,7 +112,7 @@ class TestCoverage(Test):
 
     def run(self):
         """Run unittest quietly and display coverage report."""
-        cmd = f"coverage3 run setup.py pytest {self.get_args()} && coverage3 report"
+        cmd = f"python3 -m pytest --cov=. tests/ {self.get_args()}"
         call(cmd, shell=True)
 
 
@@ -141,18 +125,6 @@ class Linter(SimpleCommand):
         """Run yala."""
         print("Yala is running. It may take several seconds...")
         check_call("yala *.py", shell=True)
-
-
-class CITest(SimpleCommand):
-    """Run all CI tests."""
-
-    description = "run all CI tests: unit and doc tests, linter"
-
-    def run(self):
-        """Run unit tests with coverage, doc tests and linter."""
-        cmds = ["python3 setup.py " + cmd for cmd in ("coverage", "lint")]
-        cmd = " && ".join(cmds)
-        check_call(cmd, shell=True)
 
 
 class KytosInstall:
@@ -264,12 +236,11 @@ setup(
     author_email="of-ng-dev@ncc.unesp.br",
     license="MIT",
     install_requires=["setuptools >= 36.0.1"],
-    setup_requires=["pytest-runner"],
-    tests_require=["pytest==7.0.0"],
     packages=[],
     extras_require={
         "dev": [
-            "coverage",
+            "pytest==7.0.0",
+            "pytest-cov==3.0.0",
             "pip-tools",
             "yala",
             "tox",
@@ -277,7 +248,6 @@ setup(
     },
     cmdclass={
         "clean": Cleaner,
-        "ci": CITest,
         "coverage": TestCoverage,
         "develop": DevelopMode,
         "install": InstallMode,
