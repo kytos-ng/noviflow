@@ -301,10 +301,10 @@ class TestMain(TestCase):
             "add_int_metadata",
             "pop_int",
             "send_report",
-            NoviActionSetBfdData,
-            NoviActionPushInt,
-            NoviActionAddIntMetadata,
-            NoviActionPopInt,
-            NoviActionSendReport,
+            OFNoviActionSetBfdData,
+            OFNoviActionPushInt,
+            OFNoviActionAddIntMetadata,
+            OFNoviActionPopInt,
+            OFNoviActionSendReport,
         ]
-        assert expected_keys == list(self.napp.NOVIFLOW_ACTIONS.keys())
+        assert expected_keys == list(self.napp.noviflow_actions.keys())

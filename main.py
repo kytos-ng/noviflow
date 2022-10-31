@@ -9,10 +9,20 @@ from napps.amlight.noviflow.of_core.v0x04.action import (
     NoviActionPushInt,
     NoviActionSendReport,
     NoviActionSetBfdData,
+)
+from napps.amlight.noviflow.pyof.v0x04.action import (
     NoviActionAddIntMetadata as OFNoviActionAddIntMetadata,
+)
+from napps.amlight.noviflow.pyof.v0x04.action import (
     NoviActionPopInt as OFNoviActionPopInt,
+)
+from napps.amlight.noviflow.pyof.v0x04.action import (
     NoviActionPushInt as OFNoviActionPushInt,
+)
+from napps.amlight.noviflow.pyof.v0x04.action import (
     NoviActionSendReport as OFNoviActionSendReport,
+)
+from napps.amlight.noviflow.pyof.v0x04.action import (
     NoviActionSetBfdData as OFNoviActionSetBfdData,
 )
 from napps.kytos.of_core.v0x04.flow import Action
@@ -34,7 +44,7 @@ class Main(KytosNApp):
 
         So, if you have any setup routine, insert it here.
         """
-        self.NOVIFLOW_ACTIONS = {
+        self.noviflow_actions = {
             "set_bfd": NoviActionSetBfdData,
             "push_int": NoviActionPushInt,
             "add_int_metadata": NoviActionAddIntMetadata,
@@ -66,5 +76,5 @@ class Main(KytosNApp):
 
     def register_actions(self):
         """Add new actions to kytos/of_core."""
-        for name, action in self.NOVIFLOW_ACTIONS.items():
+        for name, action in self.noviflow_actions.items():
             Action.add_action_class(name, action)
