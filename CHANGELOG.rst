@@ -19,6 +19,7 @@ Removed
 
 Fixed
 =====
+- Fixed Action object has no attribute 'as_dict'
 
 Security
 ========
