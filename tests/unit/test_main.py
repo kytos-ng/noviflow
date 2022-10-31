@@ -292,3 +292,19 @@ class TestMain(TestCase):
         assert as_of_action.interval == interval
         assert as_of_action.multiplier == multiplier
         assert as_of_action.keep_alive_timeout == keep_alive_timeout
+
+    def test_noviflow_actions_dict(self) -> None:
+        """Test NOVIFLOW_ACTIONS dict."""
+        expected_keys = [
+            "set_bfd",
+            "push_int",
+            "add_int_metadata",
+            "pop_int",
+            "send_report",
+            NoviActionSetBfdData,
+            NoviActionPushInt,
+            NoviActionAddIntMetadata,
+            NoviActionPopInt,
+            NoviActionSendReport,
+        ]
+        assert expected_keys == list(self.napp.NOVIFLOW_ACTIONS.keys())
