@@ -10,17 +10,24 @@ from napps.amlight.noviflow.of_core.v0x04.action import (
     NoviActionSendReport,
     NoviActionSetBfdData,
 )
+from napps.amlight.noviflow.pyof.v0x04.action import (
+    NoviActionAddIntMetadata as OFNoviActionAddIntMetadata,
+)
+from napps.amlight.noviflow.pyof.v0x04.action import (
+    NoviActionPopInt as OFNoviActionPopInt,
+)
+from napps.amlight.noviflow.pyof.v0x04.action import (
+    NoviActionPushInt as OFNoviActionPushInt,
+)
+from napps.amlight.noviflow.pyof.v0x04.action import (
+    NoviActionSendReport as OFNoviActionSendReport,
+)
+from napps.amlight.noviflow.pyof.v0x04.action import (
+    NoviActionSetBfdData as OFNoviActionSetBfdData,
+)
 from napps.kytos.of_core.v0x04.flow import Action
 
 from kytos.core import KytosNApp
-
-NOVIFLOW_ACTIONS = {
-    "set_bfd": NoviActionSetBfdData,
-    "push_int": NoviActionPushInt,
-    "add_int_metadata": NoviActionAddIntMetadata,
-    "pop_int": NoviActionPopInt,
-    "send_report": NoviActionSendReport,
-}
 
 
 class Main(KytosNApp):
@@ -37,7 +44,18 @@ class Main(KytosNApp):
 
         So, if you have any setup routine, insert it here.
         """
-        pass
+        self.noviflow_actions = {
+            "set_bfd": NoviActionSetBfdData,
+            "push_int": NoviActionPushInt,
+            "add_int_metadata": NoviActionAddIntMetadata,
+            "pop_int": NoviActionPopInt,
+            "send_report": NoviActionSendReport,
+            OFNoviActionSetBfdData: NoviActionSetBfdData,
+            OFNoviActionPushInt: NoviActionPushInt,
+            OFNoviActionAddIntMetadata: NoviActionAddIntMetadata,
+            OFNoviActionPopInt: NoviActionPopInt,
+            OFNoviActionSendReport: NoviActionSendReport,
+        }
 
     def execute(self):
         """Run after the setup method execution.
@@ -56,8 +74,7 @@ class Main(KytosNApp):
         """
         pass
 
-    @staticmethod
-    def register_actions():
+    def register_actions(self):
         """Add new actions to kytos/of_core."""
-        for name, action in NOVIFLOW_ACTIONS.items():
+        for name, action in self.noviflow_actions.items():
             Action.add_action_class(name, action)
