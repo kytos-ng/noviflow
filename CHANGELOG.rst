@@ -20,6 +20,7 @@ Removed
 Fixed
 =====
 - Fixed Action object has no attribute 'as_dict'
+- Hooked ``ActionExperimenter`` subclasses to be deserialized on of_core
 
 Security
 ========
