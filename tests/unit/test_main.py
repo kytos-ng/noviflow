@@ -24,6 +24,9 @@ from napps.amlight.noviflow.pyof.v0x04.action import (
 from napps.amlight.noviflow.pyof.v0x04.action import (
     NoviActionSetBfdData as OFNoviActionSetBfdData,
 )
+from napps.amlight.noviflow.pyof.v0x04.action import (
+    NoviActionType as NType
+)
 from napps.amlight.noviflow.pyof.v0x04.action import NoviActionType
 from napps.kytos.of_core.v0x04.flow import Flow as Flow04
 from pyof.foundation.basic_types import UBInt8, UBInt32
@@ -308,3 +311,24 @@ class TestMain(TestCase):
             OFNoviActionSendReport,
         ]
         assert expected_keys == list(self.napp.noviflow_actions.keys())
+
+    def test_noviflow_action_types(self) -> None:
+        """Test noviflows_action_types."""
+        expected = {
+            NType.NOVI_ACTION_SET_BFD_DATA: NoviActionSetBfdData,
+            NType.NOVI_ACTION_PUSH_INT.value: NoviActionPushInt,
+            NType.NOVI_ACTION_ADD_INT_METADATA.value: NoviActionAddIntMetadata,
+            NType.NOVI_ACTION_POP_INT: NoviActionPopInt,
+            NType.NOVI_ACTION_SEND_REPORT: NoviActionSendReport,
+        }
+        assert self.napp.noviflow_action_types == expected
+
+    def test_get_experimenter_type(self) -> None:
+        """Test get_experimenter_type."""
+        body = b"\xff\x00\x00\x0c"
+        klass = self.napp.get_experimenter_type(body)
+        assert klass == NoviActionPushInt
+        body = b"\xaa\x00\x00\x0c"
+        assert not self.napp.get_experimenter_type(body)
+        body = b"\xaa"
+        assert not self.napp.get_experimenter_type(body)
