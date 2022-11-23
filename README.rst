@@ -13,6 +13,17 @@ Overview
 ========
 Implement Noviflow-specific features
 
+Installing
+==========
+
+To install this NApp, first, make sure to have the same venv activated as you have ``kytos`` installed on:
+
+.. code:: shell
+
+   $ git clone https://github.com/kytos-ng/noviflow.git
+   $ cd noviflow
+   $ python3 setup.py develop
+
 Requirements
 ============
 
