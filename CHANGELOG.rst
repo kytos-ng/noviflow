@@ -5,25 +5,13 @@ All notable changes to the noviflow NApp will be documented in this file.
 
 [UNRELEASED] - Under development
 ********************************
-Added
-=====
 
-Changed
-=======
-
-Deprecated
-==========
-
-Removed
-=======
+[2022.3.0] - 2022-12-15
 
 Fixed
 =====
 - Fixed Action object has no attribute 'as_dict'
 - Hooked ``ActionExperimenter`` subclasses to be deserialized on of_core
-
-Security
-========
 
 [2022.1.0] - 2022-02-08
 ***********************
