@@ -7,6 +7,7 @@ All notable changes to the noviflow NApp will be documented in this file.
 ********************************
 
 [2022.3.0] - 2022-12-15
+***********************
 
 Fixed
 =====
