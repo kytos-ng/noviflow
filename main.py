@@ -88,13 +88,12 @@ class Main(KytosNApp):
         pass
 
     def get_experimenter_type(
-        self,
-        body: bytes
+        self, body: bytes
     ) -> Optional[Type[ActionExperimenterNoviflow]]:
         """Get ActionExperimenterNoviflow given an encoded action body."""
         try:
             (customer, _rsv, action_type) = struct.unpack("!BBH", body[:4])
-            if customer != 0xff:
+            if customer != 0xFF:
                 return None
             return self.noviflow_action_types.get(action_type)
         except struct.error:
