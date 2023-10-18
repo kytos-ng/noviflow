@@ -1,5 +1,6 @@
 """Test Main methods."""
-from unittest import TestCase
+import pytest
+
 from unittest.mock import MagicMock, patch
 
 from napps.amlight.noviflow.of_core.v0x04.action import (
@@ -24,9 +25,7 @@ from napps.amlight.noviflow.pyof.v0x04.action import (
 from napps.amlight.noviflow.pyof.v0x04.action import (
     NoviActionSetBfdData as OFNoviActionSetBfdData,
 )
-from napps.amlight.noviflow.pyof.v0x04.action import (
-    NoviActionType as NType
-)
+from napps.amlight.noviflow.pyof.v0x04.action import NoviActionType as NType
 from napps.amlight.noviflow.pyof.v0x04.action import NoviActionType
 from napps.kytos.of_core.v0x04.flow import Flow as Flow04
 from pyof.foundation.basic_types import UBInt8, UBInt32
@@ -34,15 +33,13 @@ from pyof.foundation.basic_types import UBInt8, UBInt32
 from kytos.lib.helpers import get_controller_mock, get_switch_mock
 
 
-class TestMain(TestCase):
+class TestMain:
     """Tests for the Main class."""
 
-    def setUp(self):
+    def setup_method(self):
         patch("kytos.core.helpers.run_on_thread", lambda x: x).start()
         # pylint: disable=import-outside-toplevel
         from napps.amlight.noviflow.main import Main
-
-        self.addCleanup(patch.stopall)
 
         controller = get_controller_mock()
         self.napp = Main(controller)
@@ -56,15 +53,13 @@ class TestMain(TestCase):
         self.napp.execute()
         assert mock.call_count == 1
 
-    def test_create_noviactions(self):
-        """Test creating NoviAction classes from a Flow04."""
-
-        some_match = {"dl_src": "11:22:33:44:55:66"}
-        payload_classes = [
+    @pytest.mark.parametrize(
+        "payload,expected_class",
+        [
             (
                 {
-                    "switch": self.mock_switch.id,
-                    "match": some_match,
+                    "switch": "00:00:00:00:00:00:00:01",
+                    "match": {"dl_src": "11:22:33:44:55:66"},
                     "actions": [
                         {
                             "action_type": "set_bfd",
@@ -80,42 +75,42 @@ class TestMain(TestCase):
             ),
             (
                 {
-                    "switch": self.mock_switch.id,
-                    "match": some_match,
+                    "switch": "00:00:00:00:00:00:00:01",
+                    "match": {"dl_src": "11:22:33:44:55:66"},
                     "actions": [{"action_type": "push_int"}],
                 },
                 NoviActionPushInt,
             ),
             (
                 {
-                    "switch": self.mock_switch.id,
-                    "match": some_match,
+                    "switch": "00:00:00:00:00:00:00:01",
+                    "match": {"dl_src": "11:22:33:44:55:66"},
                     "actions": [{"action_type": "pop_int"}],
                 },
                 NoviActionPopInt,
             ),
             (
                 {
-                    "switch": self.mock_switch.id,
-                    "match": some_match,
+                    "switch": "00:00:00:00:00:00:00:01",
+                    "match": {"dl_src": "11:22:33:44:55:66"},
                     "actions": [{"action_type": "send_report"}],
                 },
                 NoviActionSendReport,
             ),
             (
                 {
-                    "switch": self.mock_switch.id,
-                    "match": some_match,
+                    "switch": "00:00:00:00:00:00:00:01",
+                    "match": {"dl_src": "11:22:33:44:55:66"},
                     "actions": [{"action_type": "add_int_metadata"}],
                 },
                 NoviActionAddIntMetadata,
             ),
-        ]
-
-        for payload, expected_class in payload_classes:
-            with self.subTest(payload=payload, expected_class=expected_class):
-                flow = Flow04.from_dict(payload, self.mock_switch)
-                assert isinstance(flow.instructions[0].actions[0], expected_class)
+        ],
+    )
+    def test_create_noviactions(self, payload, expected_class):
+        """Test creating NoviAction classes from a Flow04."""
+        flow = Flow04.from_dict(payload, self.mock_switch)
+        assert isinstance(flow.instructions[0].actions[0], expected_class)
 
     def test__eq__success_with_equal_flows(self):
         """Test success case to __eq__ override with equal flows."""
@@ -175,10 +170,9 @@ class TestMain(TestCase):
         flow_2 = Flow04.from_dict(flow_dict_2, self.mock_switch)
         assert flow_1 != flow_2
 
-    def test_noviaction_experimenter_pack_unpack(self):
-        """Test NoviAction* experimenter pack and unpack."""
-
-        values = [
+    @pytest.mark.parametrize(
+        "action_class,action_type_val,expected_bytes,novi_class",
+        [
             (
                 OFNoviActionPopInt,
                 NoviActionType.NOVI_ACTION_POP_INT,
@@ -203,33 +197,30 @@ class TestMain(TestCase):
                 b"\xff\xff\x00\x10\xff\x00\x00\x02\xff\x00\x00\x0f\x00\x00\x00\x00",
                 NoviActionSendReport,
             ),
-        ]
+        ],
+    )
+    def test_noviaction_experimenter_pack_unpack(
+        self, action_class, action_type_val, expected_bytes, novi_class
+    ):
+        """Test NoviAction* experimenter pack and unpack."""
+        action = action_class()
+        packed = action.pack()
 
-        for action_class, action_type_val, expected_bytes, novi_class in values:
-            with self.subTest(
-                action_class=action_class,
-                action_type_val=action_type_val,
-                expected_bytes=expected_bytes,
-                novi_class=novi_class,
-            ):
-                action = action_class()
-                packed = action.pack()
+        assert packed == expected_bytes
+        raw = expected_bytes
 
-                assert packed == expected_bytes
-                raw = expected_bytes
+        unpacked = action_class()
+        unpacked.unpack(raw)
+        assert unpacked.customer == 0xFF
+        assert unpacked.reserved == 0
+        assert unpacked.novi_action_type.value == action_type_val.value
 
-                unpacked = action_class()
-                unpacked.unpack(raw)
-                assert unpacked.customer == 0xFF
-                assert unpacked.reserved == 0
-                assert unpacked.novi_action_type.value == action_type_val.value
-
-                assert isinstance(novi_class.from_of_action(action), novi_class)
-                as_of_action = novi_class().as_of_action()
-                assert isinstance(as_of_action, action_class)
-                assert as_of_action.customer == 0xFF
-                assert as_of_action.reserved == 0
-                assert as_of_action.novi_action_type.value == action_type_val.value
+        assert isinstance(novi_class.from_of_action(action), novi_class)
+        as_of_action = novi_class().as_of_action()
+        assert isinstance(as_of_action, action_class)
+        assert as_of_action.customer == 0xFF
+        assert as_of_action.reserved == 0
+        assert as_of_action.novi_action_type.value == action_type_val.value
 
     def test_noviaction_set_bfd_data(self):
         """Test NoviActionSetBfdData experimenter pack and unpack."""
