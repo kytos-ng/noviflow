@@ -5,7 +5,8 @@ ActionExperimenter or InstructionExperimenter
 """
 
 from enum import IntEnum
-from pyof.foundation.basic_types import Pad, UBInt32, UBInt16, UBInt8
+
+from pyof.foundation.basic_types import Pad, UBInt8, UBInt16, UBInt32
 from pyof.v0x04.common.action import ActionExperimenter
 
 
@@ -35,31 +36,32 @@ class ActionExperimenterNoviflow(ActionExperimenter):
     reserved = UBInt8()
     novi_action_type = UBInt16(enum_ref=NoviActionType)
 
-    _allowed_ids = (0xff000002,)
+    _allowed_ids = (0xFF000002,)
     _allowed_novi = ()
 
-    def __init__(self, length=16, customer=0xff, reserved=0, 
-                 novi_action_type=None):
-        super().__init__(length=length, experimenter=0xff000002)
+    def __init__(self, length=16, customer=0xFF, reserved=0, novi_action_type=None):
+        super().__init__(length=length, experimenter=0xFF000002)
         self.customer = customer
         self.reserved = reserved
         self.novi_action_type = novi_action_type
 
     @classmethod
     def get_allowed_novi(cls):
+        """Get allowed novi"""
         return cls._allowed_novi
 
     @classmethod
     def get_subclass(cls, buff, offset):
+        """Get subclass"""
         novi_action = UBInt16(enum_ref=NoviActionType)
-        novi_action.unpack(buff, offset=offset+2)
+        novi_action.unpack(buff, offset=offset + 2)
         for novi_cls in ActionExperimenterNoviflow.__subclasses__():
             if novi_action.value in novi_cls.get_allowed_novi():
                 return novi_cls
         return cls
 
 
-class NoviActionSetBfdData(ActionExperimenterNoviflow):
+class NoviActionSetBfdData(ActionExperimenterNoviflow):  # LOOK AT ME
     """Set the BFD data."""
 
     port_no = UBInt32()
@@ -71,13 +73,19 @@ class NoviActionSetBfdData(ActionExperimenterNoviflow):
 
     _allowed_novi = (NoviActionType.NOVI_ACTION_SET_BFD_DATA,)
 
-    def __init__(self, port_no=None, my_disc=None, interval=None,
-                 multiplier=None, keep_alive_timeout=None):
+    def __init__(
+        self,
+        port_no=None,
+        my_disc=None,
+        interval=None,
+        multiplier=None,
+        keep_alive_timeout=None,
+    ):
         super().__init__(
             length=32,
-            customer=0xff,
+            customer=0xFF,
             reserved=0,
-            novi_action_type=NoviActionType.NOVI_ACTION_SET_BFD_DATA
+            novi_action_type=NoviActionType.NOVI_ACTION_SET_BFD_DATA,
         )
         self.port_no = port_no
         self.my_disc = my_disc
@@ -92,13 +100,13 @@ class NoviActionPushInt(ActionExperimenterNoviflow):
     pad = Pad(4)
 
     _allowed_novi = (NoviActionType.NOVI_ACTION_PUSH_INT,)
-    
+
     def __init__(self):
         super().__init__(
-            customer=0xff,
+            customer=0xFF,
             reserved=0,
-            novi_action_type=NoviActionType.NOVI_ACTION_PUSH_INT
-            )
+            novi_action_type=NoviActionType.NOVI_ACTION_PUSH_INT,
+        )
 
 
 class NoviActionAddIntMetadata(ActionExperimenterNoviflow):
@@ -107,40 +115,40 @@ class NoviActionAddIntMetadata(ActionExperimenterNoviflow):
     pad = Pad(4)
 
     _allowed_novi = (NoviActionType.NOVI_ACTION_ADD_INT_METADATA,)
-    
+
     def __init__(self):
         super().__init__(
-            customer=0xff,
+            customer=0xFF,
             reserved=0,
-            novi_action_type=NoviActionType.NOVI_ACTION_ADD_INT_METADATA
+            novi_action_type=NoviActionType.NOVI_ACTION_ADD_INT_METADATA,
         )
 
 
 class NoviActionPopInt(ActionExperimenterNoviflow):
     """Pop INT action."""
-    
+
     pad = Pad(4)
 
     _allowed_novi = (NoviActionType.NOVI_ACTION_POP_INT,)
-    
+
     def __init__(self):
         super().__init__(
-            customer=0xff,
+            customer=0xFF,
             reserved=0,
-            novi_action_type=NoviActionType.NOVI_ACTION_POP_INT
+            novi_action_type=NoviActionType.NOVI_ACTION_POP_INT,
         )
 
 
 class NoviActionSendReport(ActionExperimenterNoviflow):
     """Pop INT action."""
-    
+
     pad = Pad(4)
 
     _allowed_novi = (NoviActionType.NOVI_ACTION_SEND_REPORT,)
-    
+
     def __init__(self):
         super().__init__(
-            customer=0xff,
+            customer=0xFF,
             reserved=0,
-            novi_action_type=NoviActionType.NOVI_ACTION_SEND_REPORT
+            novi_action_type=NoviActionType.NOVI_ACTION_SEND_REPORT,
         )
