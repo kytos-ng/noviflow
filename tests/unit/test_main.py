@@ -1,7 +1,9 @@
 """Test Main methods."""
-import pytest
 
+# pylint: disable=attribute-defined-outside-init
 from unittest.mock import MagicMock, patch
+
+import pytest
 
 from napps.amlight.noviflow.of_core.v0x04.action import (
     NoviActionAddIntMetadata,
@@ -26,17 +28,17 @@ from napps.amlight.noviflow.pyof.v0x04.action import (
     NoviActionSetBfdData as OFNoviActionSetBfdData,
 )
 from napps.amlight.noviflow.pyof.v0x04.action import NoviActionType as NType
-from napps.amlight.noviflow.pyof.v0x04.action import NoviActionType
 from napps.kytos.of_core.v0x04.flow import Flow as Flow04
-from pyof.foundation.basic_types import UBInt8, UBInt32
-
 from kytos.lib.helpers import get_controller_mock, get_switch_mock
+
+from pyof.foundation.basic_types import UBInt8, UBInt32
 
 
 class TestMain:
     """Tests for the Main class."""
 
     def setup_method(self):
+        """Setup method"""
         patch("kytos.core.helpers.run_on_thread", lambda x: x).start()
         # pylint: disable=import-outside-toplevel
         from napps.amlight.noviflow.main import Main
@@ -107,6 +109,8 @@ class TestMain:
             ),
         ],
     )
+
+    # pylint: disable=no-member
     def test_create_noviactions(self, payload, expected_class):
         """Test creating NoviAction classes from a Flow04."""
         flow = Flow04.from_dict(payload, self.mock_switch)
@@ -175,25 +179,25 @@ class TestMain:
         [
             (
                 OFNoviActionPopInt,
-                NoviActionType.NOVI_ACTION_POP_INT,
+                NType.NOVI_ACTION_POP_INT,
                 b"\xff\xff\x00\x10\xff\x00\x00\x02\xff\x00\x00\x0e\x00\x00\x00\x00",
                 NoviActionPopInt,
             ),
             (
                 OFNoviActionPushInt,
-                NoviActionType.NOVI_ACTION_PUSH_INT,
+                NType.NOVI_ACTION_PUSH_INT,
                 b"\xff\xff\x00\x10\xff\x00\x00\x02\xff\x00\x00\x0c\x00\x00\x00\x00",
                 NoviActionPushInt,
             ),
             (
                 OFNoviActionAddIntMetadata,
-                NoviActionType.NOVI_ACTION_ADD_INT_METADATA,
+                NType.NOVI_ACTION_ADD_INT_METADATA,
                 b"\xff\xff\x00\x10\xff\x00\x00\x02\xff\x00\x00\x0d\x00\x00\x00\x00",
                 NoviActionAddIntMetadata,
             ),
             (
                 OFNoviActionSendReport,
-                NoviActionType.NOVI_ACTION_SEND_REPORT,
+                NType.NOVI_ACTION_SEND_REPORT,
                 b"\xff\xff\x00\x10\xff\x00\x00\x02\xff\x00\x00\x0f\x00\x00\x00\x00",
                 NoviActionSendReport,
             ),
@@ -247,7 +251,9 @@ class TestMain:
         assert action.keep_alive_timeout == 15
 
         packed = action.pack()
-        expected = b"\xff\xff\x00 \xff\x00\x00\x02\xff\x00\x00\x04\x00\x00\x00\x02\x00\x00\x00\x01\x00\x00\x00\x05\x03\x0f\x00\x00\x00\x00\x00\x00"
+        expected = b"\xff\xff\x00 \xff\x00\x00\x02\xff\x00\x00\x04\x00\x00"
+        expected += b"\x00\x02\x00\x00\x00\x01\x00\x00\x00\x05\x03\x0f\x00"
+        expected += b"\x00\x00\x00\x00\x00"
         assert packed == expected
         assert len(packed) == 32
 
@@ -255,11 +261,8 @@ class TestMain:
         unpacked.unpack(packed)
         assert unpacked.customer == 0xFF
         assert unpacked.reserved == 0
-        assert (
-            unpacked.novi_action_type.value
-            == NoviActionType.NOVI_ACTION_SET_BFD_DATA.value
-        )
-        assert unpacked.port_no == port_no
+        assert unpacked.novi_action_type.value == NType.NOVI_ACTION_SET_BFD_DATA.value
+        assert unpacked.port_no == port_no  # None = ...
         assert unpacked.my_disc == my_disc
         assert unpacked.interval == interval
         assert unpacked.multiplier == multiplier
@@ -278,8 +281,7 @@ class TestMain:
         assert as_of_action.customer == 0xFF
         assert as_of_action.reserved == 0
         assert (
-            as_of_action.novi_action_type.value
-            == NoviActionType.NOVI_ACTION_SET_BFD_DATA.value
+            as_of_action.novi_action_type.value == NType.NOVI_ACTION_SET_BFD_DATA.value
         )
         assert as_of_action.port_no == port_no
         assert as_of_action.my_disc == my_disc

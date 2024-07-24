@@ -86,7 +86,8 @@ class Test(TestCommand):
 
     def run(self):
         """Run tests."""
-        cmd = f"python3 -m pytest tests/ {self.get_args()}"
+        cmd = "python3 -m pytest tests/ --cov-report term-missing"
+        cmd += f" {self.get_args()}"
         try:
             check_call(cmd, shell=True)
         except CalledProcessError as exc:
@@ -114,8 +115,14 @@ class TestCoverage(Test):
 
     def run(self):
         """Run unittest quietly and display coverage report."""
-        cmd = f"python3 -m pytest --cov=. tests/ {self.get_args()}"
-        call(cmd, shell=True)
+        cmd = "python3 -m pytest --cov=. tests/ --cov-report term-missing"
+        cmd += f" {self.get_args()}"
+        try:
+            check_call(cmd, shell=True)
+        except CalledProcessError as exc:
+            print(exc)
+            print("Coverage tests failed. Fix the errors above and try again.")
+            sys.exit(-1)
 
 
 class Linter(SimpleCommand):
@@ -126,7 +133,12 @@ class Linter(SimpleCommand):
     def run(self):
         """Run yala."""
         print("Yala is running. It may take several seconds...")
-        check_call("yala *.py", shell=True)
+        try:
+            check_call("yala *.py tests of_core pyof", shell=True)
+            print("No linter error found.")
+        except CalledProcessError:
+            print("Linter check failed. Fix the error(s) above and try again.")
+            sys.exit(-1)
 
 
 class KytosInstall:
