@@ -3,7 +3,7 @@
   "username": "amlight",
   "name": "noviflow",
   "description": "Implement Noviflow-specific features",
-  "version": "2022.3.0",
+  "version": "2023.2.0",
   "napp_dependencies": ["kytos/of_core"],
   "license": "MIT",
   "tags": [],
